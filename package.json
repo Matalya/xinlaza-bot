@@ -12,5 +12,8 @@
     "dictionary"
   ],
   "author": "Matalya",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.16.3"
+  }
 }
