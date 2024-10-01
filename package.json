@@ -1,0 +1,16 @@
+{
+  "name": "xinlaza-bot",
+  "version": "0.0.1",
+  "description": "The official bot for the The Xinlaza Language Discord server, packing many useful functions such as activity moderation, word look up and IPA transcription.",
+  "main": "xinlaza.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "xinlaza",
+    "bot",
+    "dictionary"
+  ],
+  "author": "Matalya",
+  "license": "ISC"
+}
