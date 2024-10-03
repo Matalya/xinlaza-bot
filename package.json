@@ -1,6 +1,6 @@
 {
   "name": "xinlaza-bot",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "The official bot for the The Xinlaza Language Discord server, packing many useful functions such as activity moderation, word look up and IPA transcription.",
   "main": "xinlaza.js",
   "type" : "module",
