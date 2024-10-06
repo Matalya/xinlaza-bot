@@ -78,7 +78,7 @@ function xinlaza(args){
     let start = "";
     let end = "";
     let page = 1;
-    let query = [];
+    let queryArray = [];
     for (let i = 0; i < args.length; i++) {
         let arg = args[i];
         let argEnd = arg.length
@@ -94,11 +94,11 @@ function xinlaza(args){
         if (arg.startsWith("page:")) {
             page = Number(arg.slice(5, argEnd));
         } else {
-            query.push(arg);
+            queryArray.push(arg);
         }
     }
-    if (query.length === 0) {
-        query.push(start);
+    if (queryArray.length === 0) {
+        queryArray.push(start);
     }
 
     let acc = "";
@@ -110,9 +110,9 @@ function xinlaza(args){
         let dictEntry = entry.xinlaza.split(" ");
 
         //check for perfect matches, add it to the top of acc if one is found
-        if (query.length === dictEntry.length) {
-            for (let i = 0; i < query.length; i++) {
-                if (query[i].toLowerCase() !== dictEntry[i].toLowerCase()) {
+        if (queryArray.length === dictEntry.length) {
+            for (let i = 0; i < queryArray.length; i++) {
+                if (queryArray[i].toLowerCase() !== dictEntry[i].toLowerCase()) {
                     perfect_match = false;
                     break;
                 }
@@ -121,13 +121,12 @@ function xinlaza(args){
             perfect_match = false;
         }
         if (perfect_match) {
-            console.log(typeof matchArr)
             matchArr.unshift(`**perfect match**:\n**${entry.xinlaza}** _${POS_abbrv(entry.type)}_: ${entry.translation}\n\n`);
             continue;
         }
 
         //check for partial matches, add 'em to acc if one is found
-        let partial_match = query.some((queryItem) => {
+        let partial_match = queryArray.some((queryItem) => {
             //iterates over every word in the query and checks if it's present in the dictionary entry
             return entry.xinlaza.toLowerCase().includes(queryItem.toLowerCase());
         });
@@ -165,11 +164,11 @@ function english(args){
         if (arg.startsWith("page:")) {
             page = Number(arg.slice(5, argEnd));
         } else {
-            query.push(arg);
+            queryArray.push(arg);
         }
     }
 
-    //dictionayr search loop
+    //dictionary search loop
     let acc = "";
     let matchArr = [];
     for (let i = 0; i < dictLen; i++) {
@@ -183,7 +182,7 @@ function english(args){
             } else {
                 for (let q = 0; q < queryArray.length; q++) {
                     for (let e = 0; e < entryArray.length; e++) {
-                        if (entryArray[e] === queryArray[q]) {
+                        if (entryArray[e].toLowerCase() === queryArray[q].toLowerCase()) {
                             match = true;
                         }
                     }
