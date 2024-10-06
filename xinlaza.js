@@ -143,7 +143,7 @@ function xinlaza(args){
         let page_lower = PAGE_LENGTH * (page - 1);
         let page_upper = PAGE_LENGTH * page - 1;
         acc = `-# Showing results ${page_lower + 1} to ${page_upper + 1} out of ${matchArr.length}\n` + matchArr.slice(page_lower, page_upper).join("\n");
-    } else if (matchArr.length === 1) {
+    } else if (matchArr.length >= 1) {
         acc = `-# Showing ${matchArr.length} result${matchArr > 1 ? "s" : ""}\n` + matchArr.join("\n");
     } else {
         return "No matches found :'c";
@@ -257,7 +257,7 @@ if (content.slice(0, 6) === "yo vel") {
                 send(channel, "Sorry, this command isn't quite ready yet! How about we write some definitions?");
                 break;
             case 'help':
-                send(channel, "Here's a memory refresher!\nYou invoke me with \`yo vel\`, if you don't write that first I won't respond. Sorry, it's just a quirk I have so I don't butt in too much!\nAfter you got my attention, here's what I can do:\n- \`yo vel xnlz <xz_word> [<parameters>]\`: searches for xinlaza words; accepts\n- \`yo vel engl <en_word>\`: the same, but in English. This time, spaces matter, so that you don't search for \'run\' and get B**run**ei, yk?\n- \`yo vel help!\`: this one invokes this reference doc that tells you every command available\n- \`yo vel dict <xz_word>\`: not quite ready yet! Once I update my database, you'll be able to get custom-made, native Xinlaza definitions of words instead of English translations! Exciting!!\n- \`yo vel code!\`/\`yo vel srce!\`: these ones are to see my source code in GitHub.\nWhat else can I help you with?");
+                send(channel, "Here's a memory refresher!\nYou invoke me with \`yo vel\`, if you don't write that first I won't respond. Sorry, it's just a quirk I have so I don't butt in too much!\nAfter you got my attention, here's what I can do:\n- \`yo vel xnlz <xz_word> [<parameters>]\`: searches for xinlaza words; accepts\n- \`yo vel engl <en_word> [<parameters>]\`: the same, but in English. This time, spaces matter, so that you don't search for \'run\' and get B**run**ei, yk?\n- \`yo vel help\`: this one invokes this reference doc that tells you every command available\n- \`yo vel dict <xz_word>\`: not quite ready yet! Once I update my database, you'll be able to get custom-made, native Xinlaza definitions of words instead of English translations! Exciting!!\n- \`yo vel code\`/\`yo vel source\`: these ones are to see my source code in GitHub.\nWhat else can I help you with?");
                 break;
             case 'code':
             case 'source':
