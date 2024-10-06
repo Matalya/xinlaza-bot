@@ -54,7 +54,7 @@ function POS_abbrv(string) {
 }
 String.prototype.startsWith = function (substring) {
     if (substring.length > this.length) {
-        return false
+        return false;
     }
 
    return this.slice(0, substring.length) === substring;
@@ -62,10 +62,10 @@ String.prototype.startsWith = function (substring) {
 
 String.prototype.endsWith = function (substring) {
     if (substring.length > this.length) {
-        return false
+        return false;
     }
 
-    return this.slice(this.length - substring.length, this.length) === substring
+    return this.slice(this.length - substring.length, this.length) === substring;
 }
 
 Array.prototype.joinIntoStr = function (separator = " ", maxLength = this.length) {
@@ -81,15 +81,15 @@ function xinlaza(args){
     let queryArray = [];
     for (let i = 0; i < args.length; i++) {
         let arg = args[i];
-        let argEnd = arg.length
+        let argEnd = arg.length;
         if (arg.startsWith("type:")) {
-            type = arg.slice(5, argEnd)
+            type = arg.slice(5, argEnd);
         } else
         if (arg.startsWith("start:")) {
-            start = arg.slice(6, argEnd)
+            start = arg.slice(6, argEnd);
         } else
         if (arg.startsWith("end:")) {
-            end = arg.slice(4, argEnd)
+            end = arg.slice(4, argEnd);
         } else
         if (arg.startsWith("page:")) {
             page = Number(arg.slice(5, argEnd));
@@ -157,7 +157,7 @@ function english(args){
     let queryArray = [];
     for (let i = 0; i < args.length; i++) {
         let arg = args[i];
-        let argEnd = arg.length
+        let argEnd = arg.length;
         if (arg.startsWith("type:")) {
             type = arg.slice(5, argEnd)
         } else
@@ -195,8 +195,8 @@ function english(args){
     }//dictionary search loop end
 
     if (matchArr.length > 50) {
-        let page_lower = PAGE_LENGTH * (page - 1)
-        let page_upper = PAGE_LENGTH * page
+        let page_lower = PAGE_LENGTH * (page - 1);
+        let page_upper = PAGE_LENGTH * page;
         acc = `-# Showing results ${pager_lower + 1} to ${page_upper + 1}\n` + matchArr.slice(page_lower, page_upper).join("\n");
     } else {
         acc = `-# Showing ${matchArr.length} results\n` + matchArr.join("\n");
@@ -225,8 +225,8 @@ let author = message.author;
 let channel = message.channel;
 let time = message.createdTimestamp / 1000;
 let msg_url = message.url;
-let attachments_array = Array.from(message.attachments.values())
-let attachments = ""
+let attachments_array = Array.from(message.attachments.values());
+let attachments = "";
 
 for (let i = 0; i < attachments_array.length; i++) {
     attachments += `${attachments_array[i].url}\n`;
@@ -246,26 +246,26 @@ if (content.slice(0, 6) === "yo vel") {
             case 'xnlz':
             case 'xlz':
             case 'xz':
-                send(channel, xinlaza(args))
+                send(channel, xinlaza(args));
                 break;
             case 'english':
             case 'engl':
             case 'eng':
             case 'en':
-                send(channel, english(args))
+                send(channel, english(args));
                 break;
             case 'dict':
-                send(channel, "Sorry, this command isn't quite ready yet! How about we write some definitions?")
+                send(channel, "Sorry, this command isn't quite ready yet! How about we write some definitions?");
                 break;
             case 'help':
-                send(channel, "Here's a memory refresher!\nYou invoke me with \`yo vel\`, if you don't write that first I won't respond. Sorry, it's just a quirk I have so I don't butt in too much!\nAfter you got my attention, here's what I can do:\n- \`yo vel xnlz <xz_word> [<parameters>]\`: searches for xinlaza words; accepts\n- \`yo vel engl <en_word>\`: the same, but in English. This time, spaces matter, so that you don't search for \'run\' and get B**run**ei, yk?\n- \`yo vel help!\`: this one invokes this reference doc that tells you every command available\n- \`yo vel dict <xz_word>\`: not quite ready yet! Once I update my database, you'll be able to get custom-made, native Xinlaza definitions of words instead of English translations! Exciting!!\n- \`yo vel code!\`/\`yo vel srce!\`: these ones are to see my source code in GitHub.\nWhat else can I help you with?")
+                send(channel, "Here's a memory refresher!\nYou invoke me with \`yo vel\`, if you don't write that first I won't respond. Sorry, it's just a quirk I have so I don't butt in too much!\nAfter you got my attention, here's what I can do:\n- \`yo vel xnlz <xz_word> [<parameters>]\`: searches for xinlaza words; accepts\n- \`yo vel engl <en_word>\`: the same, but in English. This time, spaces matter, so that you don't search for \'run\' and get B**run**ei, yk?\n- \`yo vel help!\`: this one invokes this reference doc that tells you every command available\n- \`yo vel dict <xz_word>\`: not quite ready yet! Once I update my database, you'll be able to get custom-made, native Xinlaza definitions of words instead of English translations! Exciting!!\n- \`yo vel code!\`/\`yo vel srce!\`: these ones are to see my source code in GitHub.\nWhat else can I help you with?");
                 break;
             case 'code':
             case 'source':
                 send(channel, "My crib? https://github.com/Matalya/xinlaza-bot. Why? Are you visiting? 7u7");
         }
     } else {
-        send(channel, "Yes? :eyes:")
+        send(channel, "Yes? :eyes:");
     }
 }
 
