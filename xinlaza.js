@@ -1,14 +1,15 @@
 // Require the necessary discord.js classes
 import { Client, Events, GatewayIntentBits } from 'discord.js';
-import * as raw_config from './config.json' with {type : "json"};
-import * as raw_dictionary from './dictionary.json' with {type: "json"}
-const config = raw_config.default; //cuz js is stupid
-const token = config.token;
-const logs_channel = config.logs_channel;
-const xinlaza_esan = config.xinlaza_only;
-const PAGE_LENGTH = config.PAGE_LENGTH;
-let dictionary = raw_dictionary.default; //cuz js is stupid²
+import * as config from './config.json' with {type : "json"};
+import * as rawDictionary from './dictionary.json' with {type: "json"}
+const token = config.default.token;
+let dictionary = rawDictionary.default; //cuz js is stupid
 let dictLen = dictionary.length;
+
+let logsChannel = "1292477015571828836";
+let pageLength = 50;
+let role = "1293035112727838720";
+
 // Create a new client instance
 const client = new Client({
     intents: [
@@ -68,8 +69,8 @@ String.prototype.endsWith = function (substring) {
     return this.slice(this.length - substring.length, this.length) === substring;
 }
 
-Array.prototype.joinIntoStr = function (separator = " ", maxLength = this.length) {
-    return this.slice(0, maxLength).map(item => String(item)).join(separator);
+Object.prototype.del = function(fieldKey) {
+    delete this[fieldKey];
 }
 
 function xinlaza(args){
@@ -97,40 +98,37 @@ function xinlaza(args){
             queryArray.push(arg);
         }
     }
-    if (queryArray.length === 0) {
-        queryArray.push(start);
-    }
 
     let acc = "";
     let matchArr = [];
     //begin to check words. TODO: implement binary search
     for (let i = 0; i < dictLen; i++) {
         let entry = dictionary[i];
-        let perfect_match = true;
+        let perfectMatch = true;
         let dictEntry = entry.xinlaza.split(" ");
 
         //check for perfect matches, add it to the top of acc if one is found
         if (queryArray.length === dictEntry.length) {
             for (let i = 0; i < queryArray.length; i++) {
                 if (queryArray[i].toLowerCase() !== dictEntry[i].toLowerCase()) {
-                    perfect_match = false;
+                    perfectMatch = false;
                     break;
                 }
             }
         } else {
-            perfect_match = false;
+            perfectMatch = false;
         }
-        if (perfect_match) {
+        if (perfectMatch) {
             matchArr.unshift(`**perfect match**:\n**${entry.xinlaza}** _${POS_abbrv(entry.type)}_: ${entry.translation}\n\n`);
             continue;
         }
 
         //check for partial matches, add 'em to acc if one is found
-        let partial_match = queryArray.some((queryItem) => {
+        let partialMatch = queryArray.length === 0 || queryArray.some((queryItem) => {
             //iterates over every word in the query and checks if it's present in the dictionary entry
             return entry.xinlaza.toLowerCase().includes(queryItem.toLowerCase());
         });
-        if (partial_match &&
+        if (partialMatch &&
             entry.xinlaza.startsWith(start) &&
             entry.xinlaza.endsWith(end) &&
             (entry.type === type || type === "")
@@ -140,9 +138,9 @@ function xinlaza(args){
     } //dictionary iterating loop end
 
     if (matchArr.length > 50) {
-        let page_lower = PAGE_LENGTH * (page - 1);
-        let page_upper = PAGE_LENGTH * page - 1;
-        acc = `-# Showing results ${page_lower + 1} to ${page_upper + 1} out of ${matchArr.length}\n` + matchArr.slice(page_lower, page_upper).join("\n");
+        let pageLower = pageLength * (page - 1);
+        let pageUpper = pageLength * page - 1;
+        acc = `-# Showing results ${pageLower + 1} to ${pageUpper + 1} out of ${matchArr.length}\n` + matchArr.slice(pageLower, pageUpper).join("\n");
     } else if (matchArr.length >= 1) {
         acc = `-# Showing ${matchArr.length} result${matchArr > 1 ? "s" : ""}\n` + matchArr.join("\n");
     } else {
@@ -193,10 +191,10 @@ function english(args){
         }
     }//dictionary search loop end
 
-    if (matchArr.length > 50) {
-        let page_lower = PAGE_LENGTH * (page - 1);
-        let page_upper = PAGE_LENGTH * page;
-        acc = `-# Showing results ${pager_lower + 1} to ${page_upper + 1}\n` + matchArr.slice(page_lower, page_upper).join("\n");
+    if (matchArr.length > pageLength) {
+        let pageLower = pageLength * (page - 1);
+        let pageUpper = pageLength * page - 1;
+        acc = `-# Showing results ${pageLower + 1} to ${pageUpper + 1}\n` + matchArr.slice(pageLower, pageUpper).join("\n");
     } else {
         acc = `-# Showing ${matchArr.length} results\n` + matchArr.join("\n");
     }
@@ -207,68 +205,86 @@ function english(args){
     return acc;
 }
 
-function send(channel, message) {
-    channel.send(message.slice(0, 2000))
+async function send(channel, message) {
+    await channel.send(message.slice(0, 2000));
     if (message.length >= 2000) {
         console.log(`Message was clipped from ${message.length} characters to avoid an application crash`);
     }
 }
 
-client.on('messageCreate', (message) => {
-if (message.author.tag === client.user.tag) {
-    return;
-}
-
-let content = message.content;
-let author = message.author;
-let channel = message.channel;
-let time = message.createdTimestamp / 1000;
-let msg_url = message.url;
-let attachments_array = Array.from(message.attachments.values());
-let attachments = "";
-
-for (let i = 0; i < attachments_array.length; i++) {
-    attachments += `${attachments_array[i].url}\n`;
-}
-send(client.channels.cache.get(logs_channel), `[<t:${Math.round(time)}:f>] in ${channel.name}; **[${author.tag}](<${msg_url}>)**: ${content}\n${attachments}`);
-
-if (content.slice(0, 6) === "yo vel") {
-    if (channel.id === xinlaza_esan) {
-        send(channel, "Sorry, can't answer that here!")
+client.on('messageCreate', async (message) => {
+    if (message.author.tag === client.user.tag) {
         return;
     }
-    let command = content.split(" ");
-    if (command.length >= 3) {
-        let args = command.slice(3, command.length);
-        switch (command[2]) {
-            case 'xinlaza':
-            case 'xnlz':
-            case 'xlz':
-            case 'xz':
-                send(channel, xinlaza(args));
-                break;
-            case 'english':
-            case 'engl':
-            case 'eng':
-            case 'en':
-                send(channel, english(args));
-                break;
-            case 'dict':
-                send(channel, "Sorry, this command isn't quite ready yet! How about we write some definitions?");
-                break;
-            case 'help':
-                send(channel, "Here's a memory refresher!\nYou invoke me with \`yo vel\`, if you don't write that first I won't respond. Sorry, it's just a quirk I have so I don't butt in too much!\nAfter you got my attention, here's what I can do:\n- \`yo vel xnlz <xz_word> [<parameters>]\`: searches for xinlaza words; accepts\n- \`yo vel engl <en_word> [<parameters>]\`: the same, but in English. This time, spaces matter, so that you don't search for \'run\' and get B**run**ei, yk?\n- \`yo vel help\`: this one invokes this reference doc that tells you every command available\n- \`yo vel dict <xz_word>\`: not quite ready yet! Once I update my database, you'll be able to get custom-made, native Xinlaza definitions of words instead of English translations! Exciting!!\n- \`yo vel code\`/\`yo vel source\`: these ones are to see my source code in GitHub.\nWhat else can I help you with?");
-                break;
-            case 'code':
-            case 'source':
-                send(channel, "My crib? https://github.com/Matalya/xinlaza-bot. Why? Are you visiting? 7u7");
-        }
-    } else {
-        send(channel, "Yes? :eyes:");
-    }
-}
 
-})
+    const content = message.content;
+    const author = message.author;
+    const server = author.guild;
+    const channel = message.channel;
+    const time = message.createdTimestamp / 1000;
+    const msgURL = message.url;
+    let attachments_array = Array.from(message.attachments.values());
+    let attachments = "";
+
+    for (let i = 0; i < attachments_array.length; i++) {
+        attachments += `${attachments_array[i].url}\n`;
+    }
+
+    if (content.slice(0, 6) === "yo vel") {
+        let command = content.split(" ");
+        if (command.length >= 3) {
+            let args = command.slice(3, command.length);
+            switch (command[2]) {
+                case 'xinlaza':
+                case 'xnlz':
+                case 'xlz':
+                case 'xz':
+                    await send(channel, xinlaza(args));
+                    break;
+                case 'english':
+                case 'engl':
+                case 'eng':
+                case 'en':
+                    await send(channel, english(args));
+                    break;
+                case 'dict':
+                    await send(channel, "Sorry, this command isn't quite ready yet! How about we write some definitions?");
+                    break;
+                case 'help':
+                    await send(channel, "Here's a memory refresher!\nYou invoke me with \`yo vel\`, if you don't write that first I won't respond. Sorry, it's just a quirk I have so I don't butt in too much!\n" +
+                    "After you got my attention, here's what I can do:\n" +
+                    "- \`yo vel xnlz <xz_word> [<parameters>]\`: searches for xinlaza words; accepts\n" +
+                    "- \`yo vel engl <en_word> [<parameters>]\`: the same, but in English. This time, spaces matter, so that you don't search for \'run\' and get B**run**ei, yk?\n" +
+                    "- \`yo vel help\`: this one invokes this reference doc that tells you every command available\n" +
+                    "- \`yo vel dict <xz_word>\`: not quite ready yet! Once I update my database, you'll be able to get custom-made, native Xinlaza definitions of words instead of English translations! Exciting!!\n" +
+                    "- \`yo vel code\`/\`yo vel source\`: these ones are to see my source code in GitHub.\n" +
+                  /*"- \`yo vel config show\`: shows the current values of Velmeti's configurable variables\n" +
+                    "- \`yo vel config setup logsChannel <channel id>/here\`: defines in what channel the message logging will take place. Saying here will take the channel of the message. It's empty by default\n" +
+                    "- \`yo vel config setup pageLength <integer>\`: defines the amount of query results Velmeti can send at once. Default is 50, maximum is 100, minimum is 1.\n" +
+                    "- \`yo ve config setup RESTORE\`: restore defaults.\n" +*/
+                    "\`yo vel echo <message>\`: with no quotes! I'll just echo whatever you say after that." +
+                    "What else can I help you with?\n");
+                    break;
+                case 'code':
+                case 'source':
+                    await send(channel, "My crib? https://github.com/Matalya/xinlaza-bot. Why? Are you visiting? 7u7");
+                    break;
+                /*case "config":
+                    await send(channel, setup(args, message));*/
+                case "echo":
+                    send(channel, content.slice(11));
+                    break;
+                default:
+                    await send(channel, "Sorry, I don't know what that means! Need a refresher? Try \'yo vel help\'!")
+            }
+        } else {
+            await send(channel, "Yes? :eyes: If you wanna know what I can do, try \'yo vel help\' like any good CLI!");
+        }
+    }
+    if (logsChannel !== "") {
+        await send(client.channels.cache.get(logsChannel), `[<t:${Math.round(time)}:f>] in ${channel.name}; **[${author.tag}](<${msgURL}>)**: ${content}\n${attachments}`);
+    }
+});
 
 // Log in to Discord with your client's token
 client.login(token);
